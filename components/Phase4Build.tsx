@@ -104,43 +104,52 @@ export function Phase4Build({
         </div>
         <div className="flex items-center gap-2">
           <Select value={platform} onValueChange={(v) => v && setPlatform(v)}>
-            <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
+            <SelectTrigger className="w-[160px] bg-white border-slate-200 text-slate-900"><SelectValue /></SelectTrigger>
+            <SelectContent className="bg-white border-slate-200 text-slate-900">
               {PLATFORMS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                <SelectItem key={p.id} value={p.id} className="hover:bg-slate-50">{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={openPlatform}><ExternalLink className="h-4 w-4 mr-2" /> Open</Button>
-          <Button onClick={copyPrompt}><Copy className="h-4 w-4 mr-2" /> Copy prompt</Button>
+          <Button variant="outline" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-sm" onClick={openPlatform}><ExternalLink className="h-4 w-4 mr-2" /> Open</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-white transition-all" onClick={copyPrompt}><Copy className="h-4 w-4 mr-2" /> Copy prompt</Button>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Generated prompt</CardTitle>
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <CardHeader className="border-b border-slate-100 relative z-10">
+            <CardTitle className="text-slate-900">Generated prompt</CardTitle>
           </CardHeader>
-          <CardContent>
-            <pre className="text-xs leading-relaxed whitespace-pre-wrap font-mono bg-muted/30 rounded-md p-4 max-h-[520px] overflow-y-auto border border-border">
-              {typed}<span className="animate-pulse">▌</span>
+          <CardContent className="relative z-10 p-4">
+            <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono bg-slate-50 text-slate-800 rounded-xl p-4 max-h-[520px] overflow-y-auto border border-slate-200 shadow-inner">
+              {typed}<span className="animate-pulse text-blue-500">▌</span>
             </pre>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Live preview</CardTitle>
-            <Button size="sm" variant="outline" onClick={simulateBuild} disabled={building}>
-              {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> Build site</>}
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 relative z-10">
+            <CardTitle className="text-slate-900">Live preview</CardTitle>
+            <Button size="sm" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-sm" variant="outline" onClick={simulateBuild} disabled={building}>
+              {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin text-blue-600" /> Building...</> : <><Sparkles className="h-3.5 w-3.5 mr-2 text-blue-600" /> Build site</>}
             </Button>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-lg overflow-hidden border border-border h-[520px]">
+          <CardContent className="relative z-10 p-4">
+            <div className="rounded-xl overflow-hidden border border-slate-200 h-[520px] shadow-sm bg-white relative">
+              {building && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-20">
+                  <div className="h-12 w-12 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+                  <div className="text-blue-600 text-sm mt-4 tracking-widest uppercase animate-pulse font-medium">Generating UI...</div>
+                </div>
+              )}
               <iframe
                 title="Preview"
                 srcDoc={demoSiteHtml(selected)}
-                className="w-full h-full bg-[#f5efe6]"
+                className="w-full h-full bg-[#f5efe6] transition-opacity duration-1000"
+                style={{ opacity: building ? 0 : 1 }}
               />
             </div>
           </CardContent>

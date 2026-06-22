@@ -100,6 +100,7 @@ export function Phase5Outreach({
             size="sm"
             disabled={!enabled}
             onClick={() => setChannel(id)}
+            className={channel === id ? "bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-white" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"}
           >
             <Icon className="h-4 w-4 mr-2" /> {label}
           </Button>
@@ -107,51 +108,54 @@ export function Phase5Outreach({
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>First message</CardTitle>
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 relative z-10">
+            <CardTitle className="text-slate-900">First message</CardTitle>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => copy(message)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy</Button>
-              <Button size="sm" onClick={openChannel}><ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Send</Button>
+              <Button size="sm" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700" variant="outline" onClick={() => copy(message)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy</Button>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={openChannel}><ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Send</Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10 p-4">
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="font-mono text-sm min-h-[300px]"
+              className="font-mono text-[11px] min-h-[300px] bg-slate-50 border-slate-200 text-slate-800 focus-visible:ring-blue-500/30 rounded-xl resize-none p-4"
             />
-            <div className="mt-3 text-xs text-muted-foreground flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5" />
-              Hook: personal · Pain: their biggest gap · Demo: live link · CTA: low-friction yes/no
+            <div className="mt-4 text-[10px] uppercase tracking-wider text-blue-600/70 flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+              Hook: personal · Pain: biggest gap · Demo: live link · CTA: low-friction yes/no
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Day-3 follow-up (auto-draft)</CardTitle>
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <CardHeader className="border-b border-slate-100 relative z-10">
+            <CardTitle className="text-slate-900">Day-3 follow-up <span className="text-indigo-500 text-sm font-normal">(auto-draft)</span></CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10 p-4">
             <Textarea
               value={followUp}
               onChange={(e) => setFollowUp(e.target.value)}
-              className="font-mono text-sm min-h-[300px]"
+              className="font-mono text-[11px] min-h-[300px] bg-slate-50 border-slate-200 text-slate-800 focus-visible:ring-indigo-500/30 rounded-xl resize-none p-4"
             />
-            <div className="mt-3 flex justify-end">
-              <Button size="sm" variant="outline" onClick={() => copy(followUp)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy follow-up</Button>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700" variant="outline" onClick={() => copy(followUp)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy follow-up</Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mt-4 bg-accent/40 border-accent">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-base">✓</div>
+      <Card className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200/50 relative overflow-hidden backdrop-blur-md shadow-sm">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
+        <CardContent className="pt-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 text-lg shadow-[0_0_15px_rgba(59,130,246,0.2)]">✓</div>
             <div>
-              <div className="font-medium tracking-tight">Pipeline complete</div>
-              <div className="text-sm text-muted-foreground">Lead → audit → ranked → site → outreach. Repeat for next prospect in Phase 3.</div>
+              <div className="font-display tracking-tight text-slate-900 text-lg">Pipeline complete</div>
+              <div className="text-sm text-slate-500 mt-1">Lead → audit → ranked → site → outreach. Repeat for next prospect in Phase 3.</div>
             </div>
           </div>
         </CardContent>

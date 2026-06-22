@@ -10,13 +10,21 @@ import { Phase4Build } from "@/components/Phase4Build";
 import { Phase5Outreach } from "@/components/Phase5Outreach";
 import { scoreLead } from "@/lib/scoring";
 import type { Lead, AuditResult } from "@/lib/types";
-import { Sparkles } from "lucide-react";
+import { Sparkles, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [phase, setPhase] = useState(1);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [audits, setAudits] = useState<Record<string, AuditResult>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await fetch("/api/auth", { method: "DELETE" });
+    router.push("/login");
+    router.refresh();
+  }
 
   const completed = useMemo(() => {
     const s = new Set<number>();
@@ -45,7 +53,9 @@ export default function Page() {
       >
         Skip to content
       </a>
-      <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-30">
+      <header className="border-b border-slate-200 bg-white/70 backdrop-blur-xl sticky top-0 z-30 shadow-sm">
+        {/* Animated accent line */}
+        <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-30" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center">
@@ -56,9 +66,18 @@ export default function Page() {
               <div className="text-[11px] text-muted-foreground leading-tight tracking-wide uppercase mt-1">Scrape · Audit · Rank · Build · Outreach</div>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 text-[11px] text-muted-foreground tracking-[0.15em] uppercase">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-foreground/60" aria-hidden="true" />
-            Local · private · yours
+          <div className="hidden sm:flex items-center gap-4 text-[11px] text-slate-500 tracking-[0.15em] uppercase">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500/60" aria-hidden="true" />
+              Local · private · yours
+            </div>
+            <div className="h-4 w-px bg-slate-200"></div>
+            <button 
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+            >
+              <LogOut className="h-3 w-3" /> Sign Out
+            </button>
           </div>
         </div>
         <Stepper current={phase} completed={completed} onJump={(n) => setPhase(n)} />

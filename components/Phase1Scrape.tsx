@@ -64,25 +64,26 @@ export function Phase1Scrape({
       nextLabel="Audit these leads"
     >
       <div className="grid md:grid-cols-3 gap-4">
-        <Card className="md:col-span-1">
-          <CardHeader>
+        <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardHeader className="relative z-10">
             <CardTitle>Target</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="niche" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Niche</Label>
-              <Input id="niche" autoComplete="off" value={input.niche} onChange={(e) => setInput({ ...input, niche: e.target.value })} placeholder="e.g. Dentist" className="h-10 text-base" />
+            <div className="space-y-2 relative z-10">
+              <Label htmlFor="niche" className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Niche</Label>
+              <Input id="niche" autoComplete="off" value={input.niche} onChange={(e) => setInput({ ...input, niche: e.target.value })} placeholder="e.g. Dentist" className="h-10 text-base bg-white border-slate-200 focus-visible:ring-blue-500/30 text-slate-900 transition-all rounded-xl shadow-sm" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="city" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Location</Label>
-              <Input id="city" autoComplete="off" value={input.city} onChange={(e) => setInput({ ...input, city: e.target.value })} placeholder="e.g. Bandra, Mumbai" className="h-10 text-base" />
+            <div className="space-y-2 relative z-10">
+              <Label htmlFor="city" className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Location</Label>
+              <Input id="city" autoComplete="off" value={input.city} onChange={(e) => setInput({ ...input, city: e.target.value })} placeholder="e.g. Bandra, Mumbai" className="h-10 text-base bg-white border-slate-200 focus-visible:ring-blue-500/30 text-slate-900 transition-all rounded-xl shadow-sm" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="count" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Count</Label>
-              <Input id="count" type="number" inputMode="numeric" min={1} max={50} value={input.count} onChange={(e) => setInput({ ...input, count: Number(e.target.value) })} className="h-10 text-base font-mono tabular-nums" />
-              <p className="text-[11px] text-muted-foreground">Max 25 for free Apify tier.</p>
+            <div className="space-y-2 relative z-10">
+              <Label htmlFor="count" className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Count</Label>
+              <Input id="count" type="number" inputMode="numeric" min={1} max={50} value={input.count} onChange={(e) => setInput({ ...input, count: Number(e.target.value) })} className="h-10 text-base font-mono tabular-nums bg-white border-slate-200 focus-visible:ring-blue-500/30 text-slate-900 transition-all rounded-xl shadow-sm" />
+              <p className="text-[11px] text-slate-500">Max 25 for free Apify tier.</p>
             </div>
-            <Button onClick={runScrape} disabled={loading} className="w-full h-11 transition-transform duration-150 active:scale-[0.98]">
+            <Button onClick={runScrape} disabled={loading} className="w-full h-11 transition-all duration-300 active:scale-[0.98] bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 border border-blue-500/20 rounded-xl relative z-10">
               {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Scraping...</> : "Scrape leads"}
             </Button>
             <div className="grid grid-cols-3 gap-2 pt-2">
@@ -93,8 +94,9 @@ export function Phase1Scrape({
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
-          <CardHeader>
+        <Card className="md:col-span-2 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-bl from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardHeader className="relative z-10 border-b border-slate-100">
             <CardTitle>Live map</CardTitle>
           </CardHeader>
           <CardContent>
@@ -103,14 +105,15 @@ export function Phase1Scrape({
         </Card>
       </div>
 
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Results</CardTitle>
+      <Card className="mt-4 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg overflow-hidden relative group hover:shadow-xl transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <CardHeader className="border-b border-slate-100 relative z-10">
+          <CardTitle className="text-slate-900">Results <span className="text-blue-600 text-sm font-normal ml-2">{leads.length > 0 ? `${leads.length} found` : ''}</span></CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 relative z-10">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-slate-50/80">
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Business</TableHead>

@@ -116,33 +116,37 @@ export function Phase2Audit({
       nextLabel="Rank prospects"
     >
       <div className="grid md:grid-cols-4 gap-3 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Audited</div>
-            <div className="font-display text-3xl tabular-nums mt-2">{auditedCount}<span className="text-muted-foreground/50 text-2xl"> / {leads.length}</span></div>
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardContent className="pt-6 relative z-10">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-slate-500 font-medium">Audited</div>
+            <div className="font-display text-3xl tabular-nums mt-2 text-slate-900">{auditedCount}<span className="text-slate-400 text-2xl"> / {leads.length}</span></div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">No site at all</div>
-            <div className="font-display text-3xl tabular-nums text-[color:var(--destructive)] mt-2">
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-tr from-red-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardContent className="pt-6 relative z-10">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-slate-500 font-medium">No site at all</div>
+            <div className="font-display text-3xl tabular-nums text-red-600 mt-2">
               {Object.values(audits).filter((a) => !a.hasWebsite).length}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Avg PageSpeed</div>
-            <div className="font-display text-3xl tabular-nums mt-2">
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardContent className="pt-6 relative z-10">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-slate-500 font-medium">Avg PageSpeed</div>
+            <div className="font-display text-3xl tabular-nums mt-2 text-slate-900">
               {auditedCount ? Math.round(Object.values(audits).reduce((s, a) => s + a.pageSpeedScore, 0) / auditedCount) : 0}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Est. ₹ lost / month</div>
-            <div className="font-display text-3xl tabular-nums flex items-center mt-2">
-              <IndianRupee className="h-6 w-6" strokeWidth={1.5} />{totalLost.toLocaleString("en-IN")}
+        <Card className="bg-white/80 border-slate-200 backdrop-blur-xl relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-tr from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <CardContent className="pt-6 relative z-10">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-slate-500 font-medium">Est. ₹ lost / month</div>
+            <div className="font-display text-3xl tabular-nums flex items-center mt-2 text-slate-900">
+              <IndianRupee className="h-6 w-6 text-green-600 mr-1" strokeWidth={1.5} />{totalLost.toLocaleString("en-IN")}
             </div>
           </CardContent>
         </Card>
@@ -170,7 +174,7 @@ export function Phase2Audit({
           <Button
             onClick={runAudit}
             disabled={running || selectedIds.size === 0}
-            className="h-10 px-4"
+            className="h-10 px-4 bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-white rounded-xl transition-all"
           >
             {running ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Auditing...</>
@@ -192,7 +196,8 @@ export function Phase2Audit({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
             >
-              <Card className={`h-full transition-colors duration-200 ${isSelected ? "border-primary/30" : "hover:border-primary/20"}`}>
+              <Card className={`h-full transition-all duration-300 relative group overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-lg ${isSelected ? "border-blue-400 shadow-md shadow-blue-500/10" : "border-slate-200 hover:border-slate-300"}`}>
+                <div className={`absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none ${isSelected ? "opacity-100" : "group-hover:opacity-50"}`} />
                 <CardHeader className="pb-3">
                   <div className="flex items-start gap-3">
                     <Checkbox

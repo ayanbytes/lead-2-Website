@@ -87,12 +87,13 @@ export function Phase3Rank({
                   setSelectedId(lead.id);
                 }
               }}
-              className={`cursor-pointer transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-0.5 ${
+              className={`cursor-pointer transition-all duration-300 ease-out focus-visible:outline-none relative group overflow-hidden bg-white/80 backdrop-blur-md hover:-translate-y-1 hover:shadow-lg ${
                 selectedId === lead.id
-                  ? "ring-1 ring-primary border-primary/30"
-                  : "hover:border-primary/30"
+                  ? "ring-1 ring-blue-500 border-blue-400 shadow-md shadow-blue-500/10"
+                  : "border-slate-200 hover:border-slate-300"
               }`}
             >
+              <div className={`absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none ${selectedId === lead.id ? "opacity-100" : "group-hover:opacity-50"}`} />
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-sm flex items-center gap-2 font-medium tracking-wide uppercase text-muted-foreground">
@@ -121,14 +122,15 @@ export function Phase3Rank({
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All ranked</CardTitle>
+      <Card className="bg-white/80 border-slate-200 backdrop-blur-xl overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <CardHeader className="border-b border-slate-100 relative z-10">
+          <CardTitle className="text-slate-900">All ranked</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 relative z-10">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-slate-50/80">
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Business</TableHead>
@@ -156,15 +158,15 @@ export function Phase3Rank({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="relative h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                        <div className="relative h-1.5 flex-1 rounded-full bg-slate-200 overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${lead.score}%` }}
                             transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
-                            className="h-full bg-primary"
+                            className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
                           />
                         </div>
-                        <span className="font-mono text-sm tabular-nums w-9 text-right">{lead.score}</span>
+                        <span className="font-mono text-sm tabular-nums w-9 text-right text-slate-600">{lead.score}</span>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono tabular-nums text-sm">₹{lead.audit.estLostRevenuePerMonth.toLocaleString("en-IN")}</TableCell>
@@ -178,6 +180,7 @@ export function Phase3Rank({
                     <TableCell className="text-right">
                       <Button
                         size="sm"
+                        className={selectedId === lead.id ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20" : "border-slate-200 hover:bg-slate-50 text-slate-600"}
                         variant={selectedId === lead.id ? "default" : "outline"}
                         onClick={(e) => {
                           e.stopPropagation();

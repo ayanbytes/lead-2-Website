@@ -51,17 +51,21 @@ export function Stepper({
                 }}
                 transition={{ type: "spring", stiffness: 280, damping: 22 }}
                 className={cn(
-                  "h-11 w-11 rounded-full flex items-center justify-center border",
+                  "h-11 w-11 rounded-full flex items-center justify-center relative shadow-sm transition-all duration-500",
                   isCurrent
-                    ? "border-primary/40 text-primary-foreground"
+                    ? "bg-blue-50 border border-blue-200 text-blue-600 shadow-blue-500/10"
                     : isDone
-                      ? "border-accent-foreground/20 text-accent-foreground"
-                      : "border-border text-muted-foreground",
+                      ? "bg-indigo-50/50 border border-indigo-200/50 text-indigo-500"
+                      : "bg-slate-50/50 border border-slate-200 text-slate-400"
                 )}
               >
+                {/* Subtle underglow for current step */}
+                {isCurrent && (
+                  <div className="absolute inset-0 rounded-full bg-blue-400/20 blur-md -z-10 animate-pulse" />
+                )}
                 {isDone && !isCurrent ? <Check className="h-4 w-4" strokeWidth={1.75} /> : <Icon className="h-4 w-4" strokeWidth={1.5} />}
               </motion.div>
-              <span className={cn("text-[11px] tracking-wide uppercase", isCurrent ? "text-foreground font-medium" : "text-muted-foreground")}>
+              <span className={cn("text-[11px] tracking-wide uppercase", isCurrent ? "text-slate-900 font-medium" : "text-slate-500")}>
                 {String(step.id).padStart(2, "0")} · {step.label}
               </span>
             </button>
