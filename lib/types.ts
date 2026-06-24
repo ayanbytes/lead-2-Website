@@ -50,3 +50,21 @@ export type ScrapeInput = {
 
 export type OutreachChannel = "whatsapp" | "email" | "instagram";
 export type OutreachLanguage = "english" | "hinglish";
+
+export type HRLead = {
+  id: string;
+  name: string;
+  title: string;
+  linkedinUrl: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  city?: string;
+};
+
+export type HRScrapeInput = {
+  location: string;
+  seniority?: string;
+  portal?: string;
+};
+

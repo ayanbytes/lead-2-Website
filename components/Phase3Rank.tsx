@@ -152,9 +152,9 @@ export function Phase3Rank({
                     onClick={() => setSelectedId(lead.id)}
                   >
                     <TableCell className="font-medium tabular-nums">{i + 1}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{lead.name}</div>
-                      <div className="text-xs text-muted-foreground">{lead.reviewsCount} reviews · {lead.rating}★</div>
+                    <TableCell className="max-w-[250px]">
+                      <div className="font-medium text-slate-900 truncate" title={lead.name}>{lead.name}</div>
+                      <div className="text-xs text-slate-500 truncate" title={`${lead.reviewsCount} reviews · ${lead.rating}★`}>{lead.reviewsCount} reviews · {lead.rating}★</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

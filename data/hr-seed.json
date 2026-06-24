@@ -1,0 +1,54 @@
+{
+  "leads": [
+    {
+      "id": "hr-mock-01",
+      "name": "Ravi Kumar",
+      "title": "Head of Human Resources",
+      "linkedinUrl": "https://linkedin.com/in/ravikumar-hr-mock",
+      "email": "ravi.k.hr@gmail.com",
+      "phone": "+91 98765 43210",
+      "company": "TechNova IT Solutions",
+      "city": "India"
+    },
+    {
+      "id": "hr-mock-02",
+      "name": "Priya Sharma",
+      "title": "Talent Acquisition Lead",
+      "linkedinUrl": "https://linkedin.com/in/priya-sharma-ta-mock",
+      "email": "priyasharma.ta@yahoo.com",
+      "phone": "+91 87654 32109",
+      "company": "Global Health Partners",
+      "city": "India"
+    },
+    {
+      "id": "hr-mock-03",
+      "name": "Amit Patel",
+      "title": "HR Director",
+      "linkedinUrl": "https://linkedin.com/in/amitpatel-hrd-mock",
+      "email": "apatel_hr@gmail.com",
+      "phone": "+91 76543 21098",
+      "company": "FinServe Group",
+      "city": "India"
+    },
+    {
+      "id": "hr-mock-04",
+      "name": "Sneha Reddy",
+      "title": "Senior HR Manager",
+      "linkedinUrl": "https://linkedin.com/in/snehareddy-hrm-mock",
+      "email": "sneha.r.hrmanager@gmail.com",
+      "phone": "+91 65432 10987",
+      "company": "EduTech Innovations",
+      "city": "India"
+    },
+    {
+      "id": "hr-mock-05",
+      "name": "Vikram Singh",
+      "title": "VP of HR",
+      "linkedinUrl": "https://linkedin.com/in/vikramsingh-vphr-mock",
+      "email": "vsingh.hr.leader@yahoo.com",
+      "phone": "+91 99887 76655",
+      "company": "BuildRight Construction",
+      "city": "India"
+    }
+  ]
+}

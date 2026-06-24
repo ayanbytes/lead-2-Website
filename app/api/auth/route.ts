@@ -5,7 +5,10 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    if (email === "ayan.08m@outlook.com" && password === "Ayaan@8109") {
+    const expectedEmail = process.env.ADMIN_EMAIL || "ayan.08m@outlook.com";
+    const expectedPassword = process.env.ADMIN_PASSWORD || "Ayaan@8109";
+
+    if (email === expectedEmail && password === expectedPassword) {
       // Set an HTTP-only cookie with a simple session token
       const cookieStore = await cookies();
       cookieStore.set("admin_session", "authenticated", {
