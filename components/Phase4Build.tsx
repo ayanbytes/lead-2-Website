@@ -32,6 +32,29 @@ export function Phase4Build({
   const [typed, setTyped] = useState("");
   const [building, setBuilding] = useState(false);
 
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+
+  async function generateAIPrompt() {
+    if (!selected) return;
+    setIsGeneratingAI(true);
+    setTyped("");
+    try {
+      const res = await fetch("/api/generate-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadData: selected, platform })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate AI prompt");
+      setPrompt(data.prompt);
+      toast.success("AI Prompt generated successfully!");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  }
+
   useEffect(() => {
     if (!selected) return;
     const p = buildPrompt(selected, platform);
@@ -112,6 +135,10 @@ export function Phase4Build({
             </SelectContent>
           </Select>
           <Button variant="outline" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-sm" onClick={openPlatform}><ExternalLink className="h-4 w-4 mr-2" /> Open</Button>
+          <Button variant="outline" className="border-slate-200 bg-white hover:bg-indigo-50 text-indigo-700 shadow-sm" onClick={generateAIPrompt} disabled={isGeneratingAI}>
+            {isGeneratingAI ? <Loader2 className="h-4 w-4 mr-2 animate-spin text-indigo-500" /> : <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />}
+            {isGeneratingAI ? "Generating..." : "Generate AI Prompt"}
+          </Button>
           <Button className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-white transition-all" onClick={copyPrompt}><Copy className="h-4 w-4 mr-2" /> Copy prompt</Button>
         </div>
       </div>
@@ -168,59 +195,37 @@ function buildPrompt(l: RankedLead, platform: string): string {
   const rating = l.rating ?? 4.5;
   const reviews = l.reviewsCount ?? 0;
   const gap = l.audit.biggestGap;
-  return `You are building a high-converting local-business website for an Indian ${niche}.
+  return `You are building a highly interactive, animated 3D portfolio website for ${name} (${niche}).
 
-# BUSINESS
-Name: ${name}
-Category: ${niche}
-Address: ${addr}
-Phone: ${phone}
-WhatsApp: ${whatsapp}
-Google rating: ${rating}★ (${reviews} reviews)
-Biggest current gap: ${gap}
+# DESIGN & AESTHETICS
+- Cutting-edge, award-winning Awwwards style aesthetic.
+- Dark mode by default with glowing neon accents or sleek monochrome metallic tones.
+- Heavy use of smooth scroll animations (e.g., GSAP or Framer Motion).
+- Implement 3D elements (e.g., using Three.js, React Three Fiber, or Spline embeds) that react to mouse movement.
+- Large, bold typography for headers with sleek sans-serif body text.
+- Custom cursor and magnetic button effects.
 
-# DESIGN
-- Mobile-first (90% of Indian traffic is mobile). Hero CTA visible above fold on 375px width.
-- Premium local-business aesthetic suited to a ${niche}. Off-white base + one deep accent colour. Generous whitespace.
-- Inter or DM Sans font. Large H1 (48-64px desktop, 32px mobile).
-- Trust signals everywhere: ratings, reviews, "years in practice", credentials.
-- Floating WhatsApp button (bottom-right) on every page. Click → wa.me/${whatsapp.replace(/\D/g, "")}
-- Click-to-call phone in header. tel:${phone.replace(/\s/g, "")}
+# SECTIONS
+1. Hero: Immersive 3D interactive background or Spline embed. Huge typography introducing the portfolio owner ("Creative Developer / ${niche}"). Call-to-action to "Explore Work".
+2. About: Scroll-triggered text reveal animations. Brief biography emphasizing technical excellence and creativity.
+3. Projects Showcase: Horizontal scroll or a 3D carousel of past work. Each project card should have a 3D tilt hover effect and reveal details on click.
+4. Skills & Tech Stack: Floating 3D icons or a dynamic particle cloud representing technologies and tools used.
+5. Footer/Contact: Massive footer with a magnetic "Let's Talk" button. Include links to GitHub, LinkedIn, and Twitter.
 
-# SECTIONS (in order)
-1. Hero: Business name + 1-line promise + "Book on WhatsApp" CTA + rating badge
-2. Trust strip: "${rating}★ on Google · ${reviews}+ reviews · ${l.yearsInBusiness ?? 8}+ years in ${l.city.split(",")[0]}"
-3. Services grid: 6 cards with icons — pick the 6 most-searched services for a ${niche} in India
-4. About + owner bio: 2-col, photo placeholder + credentials + years
-5. Gallery/portfolio placeholder (3x2 grid, "Coming soon" overlay)
-6. Reviews carousel: pull 6 review snippets (use Lorem placeholder, mark for replacement)
-7. FAQ accordion: 5 questions a first-time ${niche} customer in India actually asks (pricing, timings, first visit, payments)
-8. Location: Google Maps embed of ${addr} + business hours table + directions CTA
-9. Footer: WhatsApp + Phone + Address + Hours + social icons (Instagram, Google)
-
-# SEO & TECHNICAL
-- HTML lang="en-IN"
-- Meta: "${name} | ${niche} in ${l.city} | Book on WhatsApp"
-- LocalBusiness schema markup (pick the closest @type for a ${niche}) in JSON-LD: name, address, geo, telephone, openingHours, aggregateRating
-- All images <img loading="lazy" alt="...">
-- Lighthouse mobile 90+: minify, no blocking JS, preload hero image
-- HTTPS, semantic HTML, accessible color contrast
-
-# COPY TONE
-Warm, calm, confident. Hindi/Hinglish allowed for trust phrases ("zaroorat padne pe call kariye"). Avoid jargon. Address common customer hesitations (cost, quality, trust) directly.
-
-# CTA HIERARCHY
-Primary: WhatsApp book. Secondary: Call. Tertiary: Google Maps directions.
+# TECHNICAL REQUIREMENTS
+- Responsive design: ensure 3D elements degrade gracefully or remain performant on mobile devices.
+- Seamless page transitions.
+- Semantic HTML and accessible contrast, despite the dark 3D theme.
 
 ${
   platform === "lovable" || platform === "bolt"
-    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, indian local business).`
+    ? "OUTPUT: Single React + Tailwind page. No backend. Use Framer Motion and Lucide icons."
     : platform === "claude-code"
-      ? "OUTPUT: Next.js 15 app with app router, Tailwind, shadcn. Single landing page route. Include Suspense boundaries."
-      : "OUTPUT: Static HTML + Tailwind CDN. Single index.html, self-contained."
+      ? "OUTPUT: Next.js 15 app with app router, Tailwind, Framer Motion, and Three.js/R3F."
+      : "OUTPUT: Static HTML + Tailwind CDN + GSAP + Three.js via CDN."
 }
 
-Generate now. Then list 3 sentences I can use to show the owner why this beats their current ${l.audit.hasWebsite ? "outdated site" : "Google listing only"}.`;
+Generate the complete, working code for this stunning 3D portfolio.`;
 }
 
 function demoSiteHtml(l: RankedLead): string {

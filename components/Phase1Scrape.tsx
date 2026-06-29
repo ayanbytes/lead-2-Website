@@ -65,24 +65,47 @@ export function Phase1Scrape({
     setHrLeads([]);
     setHrProgress({ current: 0, total: 0 });
     try {
-      const res = await fetch("/api/scrape-hr", {
+      const isApollo = hrInput.portal === "apollo";
+      const url = isApollo ? "/api/apollo" : "/api/scrape-hr";
+      const payload = isApollo ? {
+        action: "search",
+        q_keywords: hrInput.seniority === "senior" ? "Senior HR" : "HR",
+        person_locations: hrInput.location !== "Worldwide" ? [hrInput.location] : undefined,
+      } : hrInput;
+
+      const res = await fetch(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(hrInput),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "HR Scrape failed");
+
+      let finalLeads = data.leads || [];
+      if (isApollo) {
+        const apolloPeople = data.data?.people || [];
+        finalLeads = apolloPeople.map((p: any, i: number) => ({
+          id: `hr-apollo-${p.id || i}`,
+          name: p.name || `${p.first_name} ${p.last_name}`,
+          title: p.title || "HR Professional",
+          linkedinUrl: p.linkedin_url || "",
+          email: undefined, // Enforcing user request
+          phone: p.sanitized_phone || p.phone_number || undefined,
+          company: p.organization?.name || "Unknown Company",
+          city: p.city || "Unknown",
+        })).filter((l: any) => l.phone); // Strict phone-only
+      }
       
-      if (data.source === "seed-fallback" && data.error) {
+      if (!isApollo && data.source === "seed-fallback" && data.error) {
         toast.warning(`Live search failed: ${data.error}. Showing mock data.`);
       }
 
-      for (let i = 0; i < data.leads.length; i++) {
+      for (let i = 0; i < finalLeads.length; i++) {
         await new Promise((r) => setTimeout(r, 200));
-        setHrLeads(data.leads.slice(0, i + 1));
-        setHrProgress({ current: i + 1, total: data.leads.length });
+        setHrLeads(finalLeads.slice(0, i + 1));
+        setHrProgress({ current: i + 1, total: finalLeads.length });
       }
-      toast.success(`${data.leads.length} HR contacts generated`);
+      toast.success(`${finalLeads.length} HR contacts generated`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -237,6 +260,7 @@ export function Phase1Scrape({
                   <option value="linkedin">LinkedIn</option>
                   <option value="naukri">Naukri.com</option>
                   <option value="both">Both</option>
+                  <option value="apollo">Apollo AI</option>
                 </select>
               </div>
             </div>

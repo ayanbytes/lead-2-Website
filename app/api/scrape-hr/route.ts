@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     // Handling location
     const locationQuery = (input.location && input.location.toLowerCase() !== "worldwide") ? `"${input.location}"` : "";
-    const searchQuery = `${siteFilter} (${roleFilter}) ${locationQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com" OR "+91" OR "+1" OR "+44")`.trim();
+    const searchQuery = `${siteFilter} (${roleFilter}) ${locationQuery} ("+91" OR "+1" OR "+44")`.trim();
     
     const runRes = await fetch(
       `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
@@ -84,22 +84,18 @@ export async function POST(req: Request) {
           company = titleParts[2] ? titleParts[2].replace(" | Naukri.com", "").trim() : company;
         }
         
-        const emailMatch = snippet.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
-        let email = emailMatch ? emailMatch[1] : undefined;
-        if (email) email = email.replace(/\.?Read.*/i, '');
-        
         const phoneMatch = snippet.match(/(\+91[-.\s]?\d{10}|\b\d{10}\b)/);
         const phone = phoneMatch ? phoneMatch[1] : undefined;
 
-        // Skip if no contact info is found and we want high quality
-        if (!email && !phone) continue;
+        // Skip if no phone number is found (user specifically requested only numbers, no emails)
+        if (!phone) continue;
 
         leads.push({
           id: `hr-live-${String(leads.length + 1).padStart(2, "0")}`,
           name,
           title: jobTitle,
           linkedinUrl: url,
-          email,
+          email: undefined,
           phone,
           company,
           city: "India"

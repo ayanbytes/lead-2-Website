@@ -25,6 +25,28 @@ export function Phase5Outreach({
   const [message, setMessage] = useState("");
   const [followUp, setFollowUp] = useState("");
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  async function generateApolloDraft() {
+    if (!selected) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/apollo", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "ai_draft", leadData: selected }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate draft");
+      setMessage(data.data.text);
+      toast.success("Draft generated using Apollo AI integration.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
   useEffect(() => {
     if (!selected) return;
     const m = buildOutreach(selected, channel, lang);
@@ -113,6 +135,7 @@ export function Phase5Outreach({
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 relative z-10">
             <CardTitle className="text-slate-900">First message</CardTitle>
             <div className="flex gap-2">
+              <Button size="sm" className="border-slate-200 bg-white hover:bg-indigo-50 text-indigo-700" variant="outline" onClick={generateApolloDraft} disabled={isGenerating}><Sparkles className="h-3.5 w-3.5 mr-1.5 text-indigo-500" /> {isGenerating ? "Drafting..." : "Apollo AI Draft"}</Button>
               <Button size="sm" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700" variant="outline" onClick={() => copy(message)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy</Button>
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={openChannel}><ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Send</Button>
             </div>
