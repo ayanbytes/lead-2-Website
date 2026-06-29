@@ -5,21 +5,26 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    const expectedEmail = process.env.ADMIN_EMAIL || "ayan.08m@outlook.com";
-    const expectedPassword = process.env.ADMIN_PASSWORD || "Ayaan@8109";
+    const rawExpectedEmail = process.env.ADMIN_EMAIL;
+    const rawExpectedPassword = process.env.ADMIN_PASSWORD;
+
+    if (!rawExpectedEmail || !rawExpectedPassword) {
+      return NextResponse.json({ error: "Server authentication not configured" }, { status: 500 });
+    }
+
+    const expectedEmail = rawExpectedEmail.replace(/^["']|["']$/g, '');
+    const expectedPassword = rawExpectedPassword.replace(/^["']|["']$/g, '');
 
     if (email === expectedEmail && password === expectedPassword) {
-      // Set an HTTP-only cookie with a simple session token
-      const cookieStore = await cookies();
-      cookieStore.set("admin_session", "authenticated", {
+      const response = NextResponse.json({ success: true });
+      response.cookies.set("admin_session", "authenticated", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 1 week
       });
-
-      return NextResponse.json({ success: true });
+      return response;
     }
 
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });

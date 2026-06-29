@@ -4,7 +4,7 @@ import path from "node:path";
 import type { Lead, ScrapeInput } from "@/lib/types";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
-const APIFY_ACTOR = process.env.APIFY_ACTOR ?? "compass~crawler-google-places";
+const APIFY_ACTOR = process.env.APIFY_ACTOR ?? "lukaskrivka~google-maps-with-contact-details";
 
 async function loadSeed(): Promise<{ leads: Lead[] }> {
   const p = path.join(process.cwd(), "data", "leads-seed.json");
@@ -39,22 +39,32 @@ export async function POST(req: Request) {
     if (!runRes.ok) throw new Error(`Apify ${runRes.status}`);
     const items = (await runRes.json()) as Array<Record<string, unknown>>;
 
-    const leads: Lead[] = items.slice(0, input.count).map((it, i) => ({
-      id: `live-${String(i + 1).padStart(2, "0")}`,
-      name: String(it.title ?? it.name ?? "Unknown"),
-      category: String(it.categoryName ?? input.niche),
-      address: String(it.address ?? ""),
-      city: input.city,
-      phone: it.phone ? String(it.phone) : undefined,
-      whatsapp: it.phone ? String(it.phone) : undefined,
-      email: undefined,
-      website: it.website ? String(it.website) : undefined,
-      rating: typeof it.totalScore === "number" ? (it.totalScore as number) : undefined,
-      reviewsCount: typeof it.reviewsCount === "number" ? (it.reviewsCount as number) : undefined,
-      lat: typeof (it.location as { lat?: number })?.lat === "number" ? (it.location as { lat: number }).lat : 19.06,
-      lng: typeof (it.location as { lng?: number })?.lng === "number" ? (it.location as { lng: number }).lng : 72.83,
-      photosCount: typeof it.imagesCount === "number" ? (it.imagesCount as number) : undefined,
-    }));
+    const leads: Lead[] = items.slice(0, input.count).map((it, i) => {
+      // Handle both old compass~crawler-google-places and new lukaskrivka~google-maps-with-contact-details fields
+      const phone = it.phone ?? it.phoneNumber ?? it.phoneUnformatted;
+      const category = it.categoryName ?? (Array.isArray(it.categories) ? it.categories[0] : input.niche);
+      let email = typeof it.email === "string" ? it.email : undefined;
+      if (!email && Array.isArray(it.emails) && it.emails.length > 0) {
+        email = String(it.emails[0]);
+      }
+
+      return {
+        id: `live-${String(i + 1).padStart(2, "0")}`,
+        name: String(it.title ?? it.name ?? "Unknown"),
+        category: String(category ?? input.niche),
+        address: String(it.address ?? ""),
+        city: input.city,
+        phone: phone ? String(phone) : undefined,
+        whatsapp: phone ? String(phone) : undefined,
+        email: email,
+        website: it.website ? String(it.website) : undefined,
+        rating: typeof it.totalScore === "number" ? (it.totalScore as number) : (typeof it.rating === "number" ? it.rating : undefined),
+        reviewsCount: typeof it.reviewsCount === "number" ? (it.reviewsCount as number) : undefined,
+        lat: typeof (it.location as { lat?: number })?.lat === "number" ? (it.location as { lat: number }).lat : 19.06,
+        lng: typeof (it.location as { lng?: number })?.lng === "number" ? (it.location as { lng: number }).lng : 72.83,
+        photosCount: typeof it.imagesCount === "number" ? (it.imagesCount as number) : undefined,
+      };
+    });
 
     return NextResponse.json({ source: "apify", leads });
   } catch (e) {
