@@ -12,10 +12,6 @@ export default function PlatformSelectionPage() {
 
       <div className="relative z-10 max-w-4xl w-full mx-auto space-y-12">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
-            <span>Select Your Target</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
             Who do you want to reach?
           </h1>
