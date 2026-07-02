@@ -1,0 +1,54 @@
+{
+  "leads": [
+    {
+      "id": "founder-mock-01",
+      "name": "Arjun Desai",
+      "title": "Founder & CEO",
+      "linkedinUrl": "https://linkedin.com/in/arjundesai-founder-mock",
+      "email": "arjun.desai@technova.com",
+      "phone": "+91 98111 22233",
+      "company": "TechNova IT Solutions",
+      "city": "India"
+    },
+    {
+      "id": "founder-mock-02",
+      "name": "Neha Kapoor",
+      "title": "Co-Founder",
+      "linkedinUrl": "https://linkedin.com/in/nehakapoor-founder-mock",
+      "email": "neha@globalhealthpartners.com",
+      "phone": "+91 87222 33344",
+      "company": "Global Health Partners",
+      "city": "India"
+    },
+    {
+      "id": "founder-mock-03",
+      "name": "Siddharth Rao",
+      "title": "Founder",
+      "linkedinUrl": "https://linkedin.com/in/siddharthrao-founder-mock",
+      "email": "s.rao@finservegroup.in",
+      "phone": "+91 76333 44455",
+      "company": "FinServe Group",
+      "city": "India"
+    },
+    {
+      "id": "founder-mock-04",
+      "name": "Kavita Menon",
+      "title": "CEO",
+      "linkedinUrl": "https://linkedin.com/in/kavitamenon-ceo-mock",
+      "email": "kavita.m@edutechinnovations.com",
+      "phone": "+91 65444 55566",
+      "company": "EduTech Innovations",
+      "city": "India"
+    },
+    {
+      "id": "founder-mock-05",
+      "name": "Rajesh Khanna",
+      "title": "Owner & Managing Director",
+      "linkedinUrl": "https://linkedin.com/in/rajeshkhanna-owner-mock",
+      "email": "rajesh@buildrightconstruction.in",
+      "phone": "+91 99555 66677",
+      "company": "BuildRight Construction",
+      "city": "India"
+    }
+  ]
+}

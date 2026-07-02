@@ -11,14 +11,17 @@ import { Phase5Outreach } from "@/components/Phase5Outreach";
 import { scoreLead } from "@/lib/scoring";
 import type { Lead, AuditResult } from "@/lib/types";
 import { Sparkles, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function Page() {
+function PageContent() {
   const [phase, setPhase] = useState(1);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [audits, setAudits] = useState<Record<string, AuditResult>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const platform = searchParams.get("platform") || "all";
 
   async function handleSignOut() {
     await fetch("/api/auth", { method: "DELETE" });
@@ -87,6 +90,7 @@ export default function Page() {
           {phase === 1 && (
             <Phase1Scrape
               key="p1"
+              platform={platform}
               leads={leads}
               setLeads={setLeads}
               onNext={() => setPhase(2)}
@@ -131,5 +135,13 @@ export default function Page() {
         </AnimatePresence>
       </main>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
   );
 }

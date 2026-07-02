@@ -10,18 +10,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { PhaseShell } from "./PhaseShell";
-import { Loader2, MapPin, Phone, Star, Globe, MessageCircle, Mail, Users } from "lucide-react";
+import { Loader2, MapPin, Phone, Star, Globe, MessageCircle, Mail, Users, Rocket } from "lucide-react";
 import type { Lead, ScrapeInput, HRLead, HRScrapeInput } from "@/lib/types";
 import { toast } from "sonner";
 
 const LeadMap = dynamic(() => import("./LeadMap"), { ssr: false });
 
 export function Phase1Scrape({
+  platform,
   leads,
   setLeads,
   onNext,
   onPrev,
 }: {
+  platform?: string;
   leads: Lead[];
   setLeads: (l: Lead[]) => void;
   onNext: () => void;
@@ -35,6 +37,12 @@ export function Phase1Scrape({
   const [hrLoading, setHrLoading] = useState(false);
   const [hrLeads, setHrLeads] = useState<HRLead[]>([]);
   const [hrProgress, setHrProgress] = useState({ current: 0, total: 0 });
+
+  // Founders Scraper states
+  const [foundersInput, setFoundersInput] = useState({ industry: "Technology", location: "Worldwide", portal: "apollo" });
+  const [foundersLoading, setFoundersLoading] = useState(false);
+  const [foundersLeads, setFoundersLeads] = useState<HRLead[]>([]);
+  const [foundersProgress, setFoundersProgress] = useState({ current: 0, total: 0 });
 
   async function runScrape() {
     setLoading(true);
@@ -113,15 +121,74 @@ export function Phase1Scrape({
     }
   }
 
+  async function runFoundersScrape() {
+    setFoundersLoading(true);
+    setFoundersLeads([]);
+    setFoundersProgress({ current: 0, total: 0 });
+    try {
+      const isApollo = foundersInput.portal === "apollo";
+      const url = isApollo ? "/api/apollo" : "/api/scrape-founders";
+      const payload = isApollo ? {
+        action: "search",
+        q_keywords: `Founder CEO ${foundersInput.industry}`,
+        person_locations: foundersInput.location !== "Worldwide" ? [foundersInput.location] : undefined,
+      } : foundersInput;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Founders Scrape failed");
+
+      let finalLeads = data.leads || [];
+      if (isApollo) {
+        const apolloPeople = data.data?.people || [];
+        finalLeads = apolloPeople.map((p: any, i: number) => ({
+          id: `founder-apollo-${p.id || i}`,
+          name: p.name || `${p.first_name} ${p.last_name}`,
+          title: p.title || "Founder / CEO",
+          linkedinUrl: p.linkedin_url || "",
+          email: p.email || p.work_email || undefined,
+          phone: p.sanitized_phone || p.phone_number || undefined,
+          company: p.organization?.name || "Unknown Company",
+          city: p.city || "Unknown",
+        })).filter((l: any) => l.phone || l.email); // Need contact info
+      }
+      
+      if (!isApollo && data.source === "seed-fallback" && data.error) {
+        toast.warning(`Live search failed: ${data.error}. Showing mock data.`);
+      }
+
+      for (let i = 0; i < finalLeads.length; i++) {
+        await new Promise((r) => setTimeout(r, 200));
+        setFoundersLeads(finalLeads.slice(0, i + 1));
+        setFoundersProgress({ current: i + 1, total: finalLeads.length });
+      }
+      toast.success(`${finalLeads.length} Founders generated`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setFoundersLoading(false);
+    }
+  }
+
   return (
     <PhaseShell
       title="Phase 1 — Scrape leads"
       subtitle="Pull local businesses from Google Maps. We capture contact, reviews, photos, and location to score conversion potential."
       onPrev={onPrev}
       onNext={onNext}
-      nextDisabled={leads.length === 0}
+      nextDisabled={
+        platform === "founders" ? foundersLeads.length === 0 :
+        platform === "hr" ? hrLeads.length === 0 :
+        leads.length === 0
+      }
       nextLabel="Audit these leads"
     >
+      {platform !== "hr" && platform !== "founders" && (
+      <>
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -230,8 +297,11 @@ export function Phase1Scrape({
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
 
       {/* HR Contacts Generator Section */}
+      {platform === "hr" && (
       <div className="grid md:grid-cols-3 gap-4 mt-8">
         <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
           <CardHeader>
@@ -323,6 +393,104 @@ export function Phase1Scrape({
           </CardContent>
         </Card>
       </div>
+      )}
+
+      {/* Founders Generator Section */}
+      {platform === "founders" && (
+      <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Rocket className="h-5 w-5 text-emerald-600"/> Founders Generator</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Industry</Label>
+                <select 
+                  value={foundersInput.industry} 
+                  onChange={(e) => setFoundersInput({ ...foundersInput, industry: e.target.value })}
+                  className="w-full h-10 px-3 text-base bg-white border border-slate-200 focus-visible:ring-emerald-500/30 text-slate-900 transition-all rounded-xl shadow-sm"
+                >
+                  <option value="Technology">Technology</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Portal</Label>
+                <select 
+                  value={foundersInput.portal} 
+                  onChange={(e) => setFoundersInput({ ...foundersInput, portal: e.target.value })}
+                  className="w-full h-10 px-3 text-base bg-white border border-slate-200 focus-visible:ring-emerald-500/30 text-slate-900 transition-all rounded-xl shadow-sm"
+                >
+                  <option value="apollo">Apollo AI</option>
+                  <option value="linkedin">LinkedIn</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-[0.12em] text-slate-500 font-medium">Location</Label>
+              <Input type="text" value={foundersInput.location} onChange={(e) => setFoundersInput({ ...foundersInput, location: e.target.value })} placeholder="e.g. Worldwide, US, UK, India" className="h-10 text-base bg-white border-slate-200 rounded-xl shadow-sm focus-visible:ring-emerald-500/30" />
+            </div>
+            <Button onClick={runFoundersScrape} disabled={foundersLoading} className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition-all duration-300">
+              {foundersLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Scraping...</> : "Generate Founders"}
+            </Button>
+            {foundersLoading && foundersProgress.current > 0 && (
+              <div className="text-sm text-center text-emerald-600 mt-2 font-medium animate-pulse">
+                Scraping... extracted {foundersProgress.current} contacts so far
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle>Founder Leads {foundersLeads.length > 0 && <span className="text-emerald-600 text-sm ml-2 font-normal">{foundersLeads.length} found</span>}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <Table>
+                <TableHeader className="bg-slate-50/80 sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Company / LinkedIn</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <AnimatePresence initial={false}>
+                    {foundersLeads.map((l, i) => (
+                      <motion.tr key={l.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="border-b border-border">
+                        <TableCell>
+                          <div className="font-medium text-slate-900">{l.name}</div>
+                          <div className="text-xs text-slate-500">{l.title}</div>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {l.phone && <div className="flex items-center gap-1 text-slate-600"><Phone className="h-3 w-3"/> {l.phone}</div>}
+                          {l.email && <div className="flex items-center gap-1 text-slate-600 mt-0.5"><Mail className="h-3 w-3"/> {l.email}</div>}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-slate-800 text-sm">{l.company}</div>
+                          <a href={l.linkedinUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-500 hover:underline flex items-center gap-1 mt-0.5"><Globe className="h-3 w-3"/> View Profile</a>
+                        </TableCell>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                  {foundersLeads.length === 0 && !foundersLoading && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-12 text-sm text-muted-foreground">Set your filters and generate contacts</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      )}
 
     </PhaseShell>
   );
