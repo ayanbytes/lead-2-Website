@@ -22,7 +22,6 @@ function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const platform = searchParams.get("platform") || "all";
-
   async function handleSignOut() {
     await fetch("/api/auth", { method: "DELETE" });
     router.push("/login");

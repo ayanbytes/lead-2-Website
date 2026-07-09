@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { PhaseShell } from "./PhaseShell";
-import { Loader2, MapPin, Phone, Star, Globe, MessageCircle, Mail, Users, Rocket } from "lucide-react";
+import { Loader2, MapPin, Phone, Star, Globe, MessageCircle, Mail, Users, Rocket, Target } from "lucide-react";
 import type { Lead, ScrapeInput, HRLead, HRScrapeInput } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -43,6 +43,12 @@ export function Phase1Scrape({
   const [foundersLoading, setFoundersLoading] = useState(false);
   const [foundersLeads, setFoundersLeads] = useState<HRLead[]>([]);
   const [foundersProgress, setFoundersProgress] = useState({ current: 0, total: 0 });
+
+  // Client Needs Scraper states
+  const [needsInput, setNeedsInput] = useState({ keyword: "looking for developer", platform: "linkedin" });
+  const [needsLoading, setNeedsLoading] = useState(false);
+  const [needsLeads, setNeedsLeads] = useState<HRLead[]>([]);
+  const [needsProgress, setNeedsProgress] = useState({ current: 0, total: 0 });
 
   async function runScrape() {
     setLoading(true);
@@ -174,6 +180,55 @@ export function Phase1Scrape({
     }
   }
 
+  async function runNeedsScrape() {
+    setNeedsLoading(true);
+    setNeedsLeads([]);
+    setNeedsProgress({ current: 0, total: 0 });
+    try {
+      const res = await fetch("/api/scrape-needs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "scrape_needs" }), // Sending an empty body or simple action as it's hardcoded in the route
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error ?? "Apify API failed");
+      }
+
+      let finalLeads = data.leads || [];
+
+      if (!finalLeads.length || data.source === "seed-fallback") {
+        if (data.error) {
+          toast.warning(`Apify search failed: ${data.error}. Showing mock data.`);
+        } else {
+          toast.warning("Apify returned no results or key is missing. Showing sample leads.");
+        }
+        
+        // Use realistic mock data if fallback
+        const mockData = [
+          { id: `need-mock-${Date.now()}-1`, name: "Sarah Jenkins", title: "Looking for Web Agency", company: "TechStart", phone: "+1 (555) 123-4567", email: "sarah@techstart.io", linkedinUrl: "https://linkedin.com", city: "San Francisco" },
+          { id: `need-mock-${Date.now()}-2`, name: "David Miller", title: "Seeking Mobile App Dev", company: "GrowthWorks", phone: "+1 (555) 987-6543", email: "david@growthworks.com", linkedinUrl: "https://linkedin.com", city: "New York" },
+          { id: `need-mock-${Date.now()}-3`, name: "Elena Rodriguez", title: "Need IT Consulting", company: "FinServe", phone: "+1 (555) 456-7890", email: "elena.r@finserve.net", linkedinUrl: "https://linkedin.com", city: "Austin" }
+        ];
+        
+        // If the backend sent seed data, we could use it, but let's stick to our specific IT services mock data
+        finalLeads = mockData;
+      }
+
+      for (let i = 0; i < finalLeads.length; i++) {
+        await new Promise((r) => setTimeout(r, 200));
+        setNeedsLeads(finalLeads.slice(0, i + 1));
+        setNeedsProgress({ current: i + 1, total: finalLeads.length });
+      }
+      toast.success(`${finalLeads.length} prospects found needing IT services`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setNeedsLoading(false);
+    }
+  }
+
   return (
     <PhaseShell
       title="Phase 1 — Scrape leads"
@@ -181,13 +236,14 @@ export function Phase1Scrape({
       onPrev={onPrev}
       onNext={onNext}
       nextDisabled={
+        platform === "needs" ? needsLeads.length === 0 :
         platform === "founders" ? foundersLeads.length === 0 :
         platform === "hr" ? hrLeads.length === 0 :
         leads.length === 0
       }
       nextLabel="Audit these leads"
     >
-      {platform !== "hr" && platform !== "founders" && (
+      {platform !== "hr" && platform !== "founders" && platform !== "needs" && (
       <>
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
@@ -482,6 +538,74 @@ export function Phase1Scrape({
                   {foundersLeads.length === 0 && !foundersLoading && (
                     <TableRow>
                       <TableCell colSpan={3} className="text-center py-12 text-sm text-muted-foreground">Set your filters and generate contacts</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      )}
+
+      {/* Client Needs Generator Section */}
+      {platform === "needs" && (
+      <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <Card className="md:col-span-1 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Target className="h-5 w-5 text-purple-600"/> Needs Generator</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-sm text-slate-600">
+              Instantly generate leads of people who need IT services, web development, and tech consulting.
+            </p>
+            <Button onClick={runNeedsScrape} disabled={needsLoading} className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md transition-all duration-300">
+              {needsLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</> : "Generate Leads"}
+            </Button>
+            {needsLoading && needsProgress.current > 0 && (
+              <div className="text-sm text-center text-purple-600 mt-2 font-medium animate-pulse">
+                Extracting... {needsProgress.current} contacts so far
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2 bg-white/80 border-slate-200 backdrop-blur-xl shadow-lg relative overflow-hidden">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle>Prospects {needsLeads.length > 0 && <span className="text-purple-600 text-sm ml-2 font-normal">{needsLeads.length} found</span>}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <Table>
+                <TableHeader className="bg-slate-50/80 sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Company / Profile</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <AnimatePresence initial={false}>
+                    {needsLeads.map((l, i) => (
+                      <motion.tr key={l.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="border-b border-border">
+                        <TableCell>
+                          <div className="font-medium text-slate-900">{l.name}</div>
+                          <div className="text-xs text-slate-500">{l.title}</div>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {l.phone && <div className="flex items-center gap-1 text-slate-600"><Phone className="h-3 w-3"/> {l.phone}</div>}
+                          {l.email && <div className="flex items-center gap-1 text-slate-600 mt-0.5"><Mail className="h-3 w-3"/> {l.email}</div>}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-slate-800 text-sm">{l.company}</div>
+                          <a href={l.linkedinUrl} target="_blank" rel="noreferrer" className="text-xs text-purple-500 hover:underline flex items-center gap-1 mt-0.5"><Globe className="h-3 w-3"/> View Profile</a>
+                        </TableCell>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                  {needsLeads.length === 0 && !needsLoading && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-12 text-sm text-muted-foreground">Click Generate Leads to find clients looking for IT services</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
