@@ -31,8 +31,11 @@ export async function POST(req: Request) {
     // Search Google across the web for companies posting their IT needs
     const keywordFilter = `"looking for a ${service} agency" OR "need ${service}" OR "looking for ${service}" OR "seeking ${service}" OR "hire ${service} consultant" OR "RFP ${service}"`;
     
-    // Exclude major job boards/freelance sites to focus on direct client websites/forums, and require some contact signal
-    const searchQuery = `(${keywordFilter}) -site:upwork.com -site:fiverr.com -site:freelancer.com ("+1" OR "+44" OR "+91" OR "@gmail.com" OR "@yahoo.com" OR "contact")`.trim();
+    // Ensure we are targeting actual businesses by requiring business identifiers
+    const b2bFilter = `"company" OR "inc" OR "llc" OR "ltd" OR "startup" OR "enterprise" OR "business" OR "corporate"`;
+    
+    // Exclude major job boards, freelance sites, and forums to focus on direct B2B client websites
+    const searchQuery = `(${keywordFilter}) AND (${b2bFilter}) -site:upwork.com -site:fiverr.com -site:freelancer.com -site:reddit.com -site:quora.com ("contact" OR "email" OR "phone")`.trim();
     
     const runRes = await fetch(
       `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
