@@ -207,9 +207,9 @@ export function Phase1Scrape({
         
         // Use realistic mock data if fallback
         const mockData = [
-          { id: `need-mock-${Date.now()}-1`, name: "Sarah Jenkins", title: "Looking for Web Agency", company: "TechStart", phone: "+1 (555) 123-4567", email: "sarah@techstart.io", linkedinUrl: "https://linkedin.com", city: "San Francisco" },
-          { id: `need-mock-${Date.now()}-2`, name: "David Miller", title: "Seeking Mobile App Dev", company: "GrowthWorks", phone: "+1 (555) 987-6543", email: "david@growthworks.com", linkedinUrl: "https://linkedin.com", city: "New York" },
-          { id: `need-mock-${Date.now()}-3`, name: "Elena Rodriguez", title: "Need IT Consulting", company: "FinServe", phone: "+1 (555) 456-7890", email: "elena.r@finserve.net", linkedinUrl: "https://linkedin.com", city: "Austin" }
+          { id: `need-mock-${Date.now()}-1`, name: "Sarah Jenkins", title: "Looking for Web Agency", company: "TechStart", phone: "+1 (555) 123-4567", email: "sarah@techstart.io", linkedinUrl: "https://techstart.io/contact", city: "San Francisco" },
+          { id: `need-mock-${Date.now()}-2`, name: "David Miller", title: "Seeking Mobile App Dev", company: "GrowthWorks", phone: "+1 (555) 987-6543", email: "david@growthworks.com", linkedinUrl: "https://growthworks.com/about", city: "New York" },
+          { id: `need-mock-${Date.now()}-3`, name: "Elena Rodriguez", title: "Need IT Consulting", company: "FinServe", phone: "+1 (555) 456-7890", email: "elena.r@finserve.net", linkedinUrl: "https://finserve.net/rfp-software", city: "Austin" }
         ];
         
         // If the backend sent seed data, we could use it, but let's stick to our specific IT services mock data
@@ -598,7 +598,10 @@ export function Phase1Scrape({
                         </TableCell>
                         <TableCell>
                           <div className="font-medium text-slate-800 text-sm">{l.company}</div>
-                          <a href={l.linkedinUrl} target="_blank" rel="noreferrer" className="text-xs text-purple-500 hover:underline flex items-center gap-1 mt-0.5"><Globe className="h-3 w-3"/> View Profile</a>
+                          <a href={l.linkedinUrl} target="_blank" rel="noreferrer" className="text-xs text-purple-500 hover:underline flex items-center gap-1 mt-0.5 truncate max-w-[200px]" title={l.linkedinUrl}>
+                            <Globe className="h-3 w-3 flex-shrink-0"/>
+                            <span className="truncate">{l.linkedinUrl.replace(/^https?:\/\//, '')}</span>
+                          </a>
                         </TableCell>
                       </motion.tr>
                     ))}
