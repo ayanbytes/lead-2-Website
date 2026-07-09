@@ -1,4 +1,4 @@
-cimport { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { HRLead } from "@/lib/types";
@@ -28,8 +28,9 @@ export async function POST(req: Request) {
   }
 
   try {
-    // We simplify the query because Google Search often returns 0 results for overly complex boolean logic.
-    const searchQuery = `"${service}" ("looking for" OR "seeking" OR "need") (company OR business OR startup) ("contact" OR "@") -site:upwork.com -site:fiverr.com -site:reddit.com`.trim();
+    // We drastically simplify the query to look for RFPs (Request for Proposals) and agency requests.
+    // This is the most reliable way to find B2B companies seeking services without hitting Google's 0-result walls.
+    const searchQuery = `"${service}" (RFP OR "request for proposal" OR "looking for agency" OR "seeking agency") -freelance`.trim();
     
     const runRes = await fetch(
       `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
