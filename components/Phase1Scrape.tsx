@@ -188,7 +188,7 @@ export function Phase1Scrape({
       const res = await fetch("/api/scrape-needs", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "scrape_needs" }), // Sending an empty body or simple action as it's hardcoded in the route
+        body: JSON.stringify({ action: "scrape_needs", service: needsInput.keyword }),
       });
       const data = await res.json();
       
@@ -556,9 +556,18 @@ export function Phase1Scrape({
             <CardTitle className="flex items-center gap-2"><Target className="h-5 w-5 text-purple-600"/> Needs Generator</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <p className="text-sm text-slate-600">
-              Instantly generate leads of people who need IT services, web development, and tech consulting.
-            </p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Service you offer</label>
+              <Input
+                placeholder="e.g. Web Development, SEO, App Design"
+                value={needsInput.keyword}
+                onChange={(e) => setNeedsInput({ ...needsInput, keyword: e.target.value })}
+                className="h-11 bg-white/50"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                We'll find clients posting online looking for this specific service.
+              </p>
+            </div>
             <Button onClick={runNeedsScrape} disabled={needsLoading} className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md transition-all duration-300">
               {needsLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</> : "Generate Leads"}
             </Button>

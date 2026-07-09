@@ -19,6 +19,9 @@ async function loadSeed(): Promise<{ leads: HRLead[] }> {
 }
 
 export async function POST(req: Request) {
+  const input = await req.json().catch(() => ({}));
+  const service = input.service || "IT services";
+
   if (!APIFY_TOKEN) {
     const { leads } = await loadSeed();
     return NextResponse.json({ source: "seed", leads: leads.slice(0, 3) }); // Just return a few
@@ -26,7 +29,7 @@ export async function POST(req: Request) {
 
   try {
     // Search Google across the web for companies posting their IT needs
-    const keywordFilter = `"looking for a web agency" OR "need software development" OR "looking for IT services" OR "seeking software developers" OR "looking for tech partner" OR "hire IT consultant" OR "RFP software"`;
+    const keywordFilter = `"looking for a ${service} agency" OR "need ${service}" OR "looking for ${service}" OR "seeking ${service}" OR "hire ${service} consultant" OR "RFP ${service}"`;
     
     // Exclude major job boards/freelance sites to focus on direct client websites/forums, and require some contact signal
     const searchQuery = `(${keywordFilter}) -site:upwork.com -site:fiverr.com -site:freelancer.com ("+1" OR "+44" OR "+91" OR "@gmail.com" OR "@yahoo.com" OR "contact")`.trim();
